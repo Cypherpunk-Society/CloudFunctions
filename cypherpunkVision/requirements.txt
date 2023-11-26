@@ -1,4 +1,5 @@
-tensorflow
 flask
-requests
+tensorflow
+numpy
 pillow
+requests
