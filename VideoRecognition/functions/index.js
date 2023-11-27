@@ -17,8 +17,12 @@ ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 admin.initializeApp();
 const client = new vision.ImageAnnotatorClient();
 
+const runtimeOpts = {
+    timeoutSeconds: 540, // Aumenta a 2 minutos, ajusta según sea necesario
+    memory: '1GB' // Ajusta según sea necesario
+}
 
-exports.VideoFrameAnalysis = functions.storage.object().onFinalize(async (object) => {
+exports.VideoFrameAnalysis = functions.runWith(runtimeOpts).storage.object().onFinalize(async (object) => {
     // Verifica si el archivo es un video
     if (!object.contentType.startsWith("video/")) {
         console.log("Este archivo no es un video.");
@@ -33,13 +37,16 @@ exports.VideoFrameAnalysis = functions.storage.object().onFinalize(async (object
 
 
     // Extrae frames del video
-    const frames = await extractFramesFromVideo(filePath);
+    // const frames = await extractFramesFromVideo(filePath);
+    const { frames, tempLocalFile, frameDir } = await extractFramesFromVideo(filePath);
+
 
     // Analiza cada frame con Vision API
     for (let i = 0; i < frames.length; i++) {
         const frame = frames[i];
         const [result] = await client.labelDetection(frame);
         const labels = result.labelAnnotations;
+        // console.log(`Etiquetas encontradas en frame ${i}`);
         console.log(`Etiquetas encontradas en frame ${i}: ${labels.map(label => label.description)}`);
 
         // Subir las etiquetas a Firebase Firestore
@@ -51,12 +58,17 @@ exports.VideoFrameAnalysis = functions.storage.object().onFinalize(async (object
         });
     }
 
+  
+    // Limpieza: elimina el directorio de frames y el archivo de video temporal
+    await cleanUp(tempLocalFile, frameDir);
+
+
     return null;
 });
 
 
-async function extractFramesFromVideo(filePath, frameRate = 2) {
- 
+async function extractFramesFromVideo(filePath, frameRate = 1) {
+
     const storage = new Storage();
     const uniqueSuffix = `${Date.now()}-${Math.random()}`; // Genera un sufijo único
     const tempLocalFile = path.join(os.tmpdir(), `${path.basename(filePath)}-${uniqueSuffix}`);
@@ -96,7 +108,8 @@ async function extractFramesFromVideo(filePath, frameRate = 2) {
                         reject(err);
                     } else {
                         // Devuelve las rutas de los frames extraídos
-                        resolve(files.map(file => path.join(frameDir, file)));
+                        // resolve(files.map(file => path.join(frameDir, file) , tempLocalFile, frameDir ));
+                        resolve({ frames: files.map(file => path.join(frameDir, file)), tempLocalFile, frameDir });
                     }
                 });
             })
@@ -107,4 +120,23 @@ async function extractFramesFromVideo(filePath, frameRate = 2) {
             .output(path.join(frameDir, 'frame_%04d.png'))
             .run();
     });
+}
+
+
+async function cleanUp(tempLocalFile, frameDir) {
+    try {
+        // Elimina el directorio de frames
+        if (fs.existsSync(frameDir)) {
+            fs.rmdirSync(frameDir, { recursive: true });
+            console.log('Directorio de frames eliminado.');
+        }
+
+        // Elimina el archivo de video temporal
+        if (fs.existsSync(tempLocalFile)) {
+            fs.unlinkSync(tempLocalFile);
+            console.log('Archivo de video temporal eliminado.');
+        }
+    } catch (err) {
+        console.error('Error durante la limpieza:', err);
+    }
 }

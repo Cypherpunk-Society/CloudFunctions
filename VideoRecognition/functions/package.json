@@ -1,9 +1,15 @@
 {
+  "scripts": {
+    "lint": "eslint ."
+  },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/vision": "^4.0.2",
     "firebase-admin": "^11.11.1",
     "firebase-functions": "^4.5.0",
     "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.54.0"
   }
 }
