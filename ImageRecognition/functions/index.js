@@ -26,7 +26,7 @@ exports.ImageRecognition = functions.storage.object().onFinalize(async (object) 
 
   for (const label of labels) {
     const labelDesc = label.description;
-    const docRef = db.collection('ImageLabels').doc(labelDesc);
+    const docRef = db.collection('ImagesLabels').doc(labelDesc);
     const doc = await docRef.get();
 
     if (!doc.exists) {

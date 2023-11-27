@@ -1,29 +1,39 @@
 // script.js
 let yolo;
 
+
+// Cambia la inicialización de YOLO a ObjectDetector
+function setup() {
+    objectDetector = ml5.objectDetector('cocossd', modelLoaded);
+}
+
+function modelLoaded() {
+    console.log('Model Loaded!');
+}
+
+
+
 function handleFileInput(event) {
     const fileInput = event.target;
     const file = fileInput.files[0];
 
     if (file) {
-        const img = document.createElement('img');
+        const img = new Image();
         img.src = URL.createObjectURL(file);
-        document.body.appendChild(img);
 
-        // Initialize the YOLO model
-        yolo = ml5.YOLO(img, modelLoaded);
-
-        // When the image has loaded, make a prediction
         img.onload = function () {
-            yolo.detect(gotResults);
+            // Asegúrate de que la imagen esté completamente cargada
+            setup(); // Inicializa el detector de objetos
+            objectDetector.detect(img, gotResults); // Llama a la detección
         };
 
-        // Handle errors during image loading
         img.onerror = function () {
             console.error('Error loading the image.');
         };
     }
 }
+
+
 
 function modelLoaded() {
     console.log('YOLO Model Loaded!');
