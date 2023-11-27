@@ -2,7 +2,6 @@
 # AI vision as service
 
 
-
 ## Deploy 
 
 ```
@@ -21,5 +20,14 @@ gcloud app deploy
   python3 -m venv venv
   source venv/bin/activate
   pip3 install -r requirements.txt
+```
+
+
+## Demo 
+
+the app should running on http://127.0.0.1:5000
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"url": <image url>}' http://127.0.0.1:5000/detect
 
 ```

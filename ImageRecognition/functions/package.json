@@ -17,6 +17,7 @@
     "@google-cloud/storage": "^7.6.0",
     "@google-cloud/vision": "^4.0.2",
     "@tensorflow/tfjs": "^4.13.0",
+    "axios": "^1.6.2",
     "dotenv": "^16.3.1",
     "firebase-admin": "^11.8.0",
     "firebase-functions": "^4.3.1",
