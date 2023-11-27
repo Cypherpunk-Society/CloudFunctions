@@ -23,11 +23,20 @@ exports.ImageRecognition = functions.storage.object().onFinalize(async (object) 
 
   // Subir las etiquetas a Firebase Firestore
   const db = admin.firestore();
-  const docRef = db.collection('Images');
-  await docRef.add({ 
-    imageName: object.name,
-    labels: labels.map(label => label.description) // Guarda solo las descripciones de las etiquetas
-  });
+
+  for (const label of labels) {
+    const labelDesc = label.description;
+    const docRef = db.collection('ImageLabels').doc(labelDesc);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      await docRef.set({ images: [object.name] });
+    } else {
+      await docRef.update({
+        images: admin.firestore.FieldValue.arrayUnion(object.name)
+      });
+    }
+  }
 
   return null; // Termina la ejecución de la función
 });
