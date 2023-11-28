@@ -1,8 +1,7 @@
 
 # AI vision as service
 
-
-## Deploy 
+## Deploy on google cloud engine
 
 ```
 sudo apt-get install apt-transport-https ca-certificates gnupg curl sudo
@@ -15,16 +14,13 @@ gcloud app deploy
 ```
 
 ## start
-
 ```
   python3 -m venv venv
   source venv/bin/activate
   pip3 install -r requirements.txt
 ```
 
-
 ## Demo 
-
 the app should running on http://127.0.0.1:5000
 
 ```
