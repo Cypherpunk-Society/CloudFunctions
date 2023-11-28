@@ -6,9 +6,13 @@ firebase login
 ```
 
 ## 2. Setup Vision API
+create an .env to storage the key
 ```
-GOOGLE_CLOUD_VISION_API_KEY=tu_clave_de_API
-firebase functions:config:set vision.key="tu_clave_de_API"
+GOOGLE_CLOUD_VISION_API_KEY=your_api_key
+```
+then set as vision key
+```
+firebase functions:config:set vision.key="your_api_key"
 ```
 
 ## 3. Run CypherpunkVision API
